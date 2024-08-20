@@ -6,6 +6,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 import os
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 load_dotenv()
 
@@ -25,6 +26,13 @@ def hash_password(password: str) -> str:
     """Hash a password using bcrypt"""
     return pwd_context.hash(password)
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    
+class TokenData(BaseModel):
+    username: Optional[str] = None
+    
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JSON Web Token (JWT) with the provided data"""
     to_encode = data.copy()

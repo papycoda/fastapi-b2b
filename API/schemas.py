@@ -5,7 +5,7 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256"], default="pbkdf2_sha256")
 
 class BaseModel(BaseModel):
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserBase(BaseModel):
     name: str
@@ -45,11 +45,11 @@ class Transaction(TransactionBase):
     timestamp: str
 
 # Example usage:
-user_create = UserCreate(name="John Doe", email="johndoe@example.com", password="mysecretpassword")
-print(user_create.password)  # Output: hashed password
+# user_create = UserCreate(name="John Doe", email="johndoe@example.com", password="mysecretpassword")
+# print(user_create.password)  # Output: hashed password
 
-payment_create = PaymentCreate(amount=10.99, sender_id=1, receiver_id=2)
-print(payment_create)  # Output: PaymentCreate(amount=10.99, sender_id=1, receiver_id=2)
+# payment_create = PaymentCreate(amount=10.99, sender_id=1, receiver_id=2)
+# print(payment_create)  # Output: PaymentCreate(amount=10.99, sender_id=1, receiver_id=2)
 
-transaction_create = TransactionCreate(payment_id=1, status="pending")
-print(transaction_create)  # Output: TransactionCreate(payment_id=1, status='pending')
+# transaction_create = TransactionCreate(payment_id=1, status="pending")
+# print(transaction_create)  # Output: TransactionCreate(payment_id=1, status='pending')
