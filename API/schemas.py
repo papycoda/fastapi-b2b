@@ -3,11 +3,11 @@ from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], default="pbkdf2_sha256")
 
-class BaseModel(BaseModel):
+class ConfiguredBaseModel(BaseModel):
     class Config:
         from_attributes = True
 
-class UserBase(BaseModel):
+class UserBase(ConfiguredBaseModel):
     name: str
     email: str
 
@@ -21,7 +21,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
 
-class PaymentBase(BaseModel):
+class PaymentBase(ConfiguredBaseModel):
     amount: float
     sender_id: int
     receiver_id: int
@@ -33,8 +33,7 @@ class Payment(PaymentBase):
     id: int
     status: str
 
-class TransactionBase(BaseModel):
-    payment_id: int
+class TransactionBase(ConfiguredBaseModel):
     status: str
 
 class TransactionCreate(TransactionBase):
@@ -42,8 +41,9 @@ class TransactionCreate(TransactionBase):
 
 class Transaction(TransactionBase):
     id: int
+    payment_id: int
     timestamp: str
-
+    
 # Example usage:
 # user_create = UserCreate(name="John Doe", email="johndoe@example.com", password="mysecretpassword")
 # print(user_create.password)  # Output: hashed password

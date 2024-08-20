@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from . import crud, models, schemas, auth
@@ -112,3 +113,15 @@ def create_transaction(payment_id: int, transaction: schemas.TransactionCreate, 
     db_payment.status = "completed"
     db.commit()
     return crud.create_transaction(db=db, transaction=transaction)
+
+
+@app.get("/users/{user_id}/transactions/", response_model=List[schemas.Transaction])
+def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
+    user = crud.get_user(db, user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return db.query(models.Transaction).join(models.Payment).filter(
+        (models.Payment.sender_id == user_id) | (models.Payment.receiver_id == user_id)
+    ).all()
+
