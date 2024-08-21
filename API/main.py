@@ -14,8 +14,8 @@ from .crud import get_payment, get_user_by_id
 
 app = FastAPI()
 
-# Define constants at the top of the file for better readability and maintainability
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Define the access token expiration time in minutes
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 30 
 
 @app.get("/")
 def root():
@@ -25,10 +25,9 @@ def root():
     Returns:
         dict: A dictionary with a welcome message.
     """
-    # Define the welcome message to be returned
+    
     message = {"message": "Welcome to our B2B payments api"}
 
-    # Return the welcome message
     return message
 
 # Create all database tables using the metadata
@@ -107,14 +106,28 @@ def read_payment(payment_id: int, db: Session = Depends(get_db)):
 
 @app.post("/payments/{payment_id}/transactions/", response_model=schemas.Transaction)
 def create_transaction(payment_id: int, transaction: schemas.TransactionCreate, db: Session = Depends(get_db)):
+    """
+    Creates a new transaction for a payment in the database.
+
+    Args:
+        payment_id (int): The ID of the payment to create a transaction for.
+        transaction (schemas.TransactionCreate): The transaction data to be created.
+        db (Session): The database session to use for the operation.
+
+    Returns:
+        schemas.Transaction: The newly created transaction.
+
+    Raises:
+        HTTPException: If the payment is not found or if the payment is already completed.
+    """
     db_payment = crud.get_payment(db, payment_id=payment_id)
     if db_payment is None:
         raise HTTPException(status_code=404, detail="Payment not found")
     if db_payment.status == "completed":
         raise HTTPException(status_code=400, detail="Payment already completed")
 
-    # Simulate transaction logic (e.g., external payment processing)
-    transaction.status = "completed"  # For simplicity, assume payment always succeeds
+    # Simulating transaction
+    transaction.status = "completed"  # For simplicity, we assume payment always succeeds
     db_payment.status = "completed"
     db.commit()
     return crud.create_transaction(db=db, transaction=transaction)
@@ -122,6 +135,19 @@ def create_transaction(payment_id: int, transaction: schemas.TransactionCreate, 
 
 @app.get("/users/{user_id}/transactions/", response_model=List[schemas.Transaction])
 def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieves a list of transactions for a specific user.
+
+    Args:
+        user_id (int): The ID of the user to retrieve transactions for.
+        db (Session): The database session to use for the operation.
+
+    Returns:
+        List[schemas.Transaction]: A list of transactions associated with the user.
+
+    Raises:
+        HTTPException: If the user is not found.
+    """
     user = crud.get_user(db, user_id=user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
