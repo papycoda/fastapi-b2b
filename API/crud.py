@@ -7,6 +7,10 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256", "argon2"], default="argon2"
 def get_user(db: Session, user_id: int):
     return db.get(models.User, user_id)
 
+def get_user_by_id(db: Session, user_id: int) -> models.User:
+    """Fetch a user from the database by their ID."""
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
 def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     """
     Creates a new user in the database.
@@ -65,3 +69,4 @@ def create_transaction(db: Session, transaction: schemas.TransactionCreate) -> m
     db.commit()           # Commit the session to save the transaction to the database
     db.refresh(db_transaction)  # Refresh to get the generated id and other fields
     return db_transaction
+

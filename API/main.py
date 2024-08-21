@@ -1,11 +1,16 @@
 from typing import List
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from . import crud, models, schemas, auth
 from .database import SessionLocal, engine
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
-
+from xhtml2pdf import pisa
+from fastapi.responses import FileResponse
+#from .schemas import Receipt
+from io import BytesIO
+from fastapi.responses import FileResponse
+from .crud import get_payment, get_user_by_id
 
 app = FastAPI()
 
@@ -125,3 +130,60 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
         (models.Payment.sender_id == user_id) | (models.Payment.receiver_id == user_id)
     ).all()
 
+
+# def generate_pdf_with_xhtml2pdf(receipt: Receipt) -> BytesIO:
+#     html_content = f"""
+#     <html>
+#     <head><title>Receipt</title></head>
+#     <body>
+#         <h1>Receipt for Payment ID: {receipt.payment_id}</h1>
+#         <p>Amount: ${receipt.amount}</p>
+#         <p>Sender: {receipt.sender}</p>
+#         <p>Receiver: {receipt.receiver}</p>
+#         <p>Status: {receipt.status}</p>
+#         <p>Timestamp: {receipt.timestamp}</p>
+#     </body>
+#     </html>
+#     """
+#     pdf_file = BytesIO()
+#     pisa.CreatePDF(BytesIO(html_content.encode('utf-8')), dest=pdf_file)
+#     pdf_file.seek(0)
+#     return pdf_file
+
+
+# @app.get("/payments/{payment_id}/receipt")
+# def generate_receipt(
+#     payment_id: int,
+#     format: str = Query("pdf", enum=["pdf", "image"]),
+#     db: Session = Depends(get_db)
+# ):
+#     # Retrieve the payment
+#     db_payment = get_payment(db, payment_id)
+#     if db_payment is None:
+#         raise HTTPException(status_code=404, detail="Payment not found")
+
+#     # Check if the payment is completed
+#     if db_payment.status != "completed":
+#         raise HTTPException(status_code=400, detail="Receipt can only be generated for completed payments")
+
+#     # Retrieve sender and receiver details
+#     sender = get_user_by_id(db, db_payment.sender_id)
+#     receiver = get_user_by_id(db, db_payment.receiver_id)
+
+#     # Create the receipt object
+#     receipt = Receipt(
+#         payment_id=db_payment.id,
+#         amount=db_payment.amount,
+#         sender=sender.name,
+#         receiver=receiver.name,
+#         status=db_payment.status,
+#         timestamp=db_payment.transactions[-1].timestamp  
+#     )
+
+#     # Generate the appropriate file based on user's choice
+#     if format == "pdf":
+#         pdf_file = generate_pdf_with_xhtml2pdf(receipt)  
+#         return FileResponse(pdf_file, media_type="application/pdf", filename="receipt.pdf")
+#     elif format == "image":
+#         image_file = generate_image(receipt) 
+#         return FileResponse(image_file, media_type="image/png", filename="receipt.png")

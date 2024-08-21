@@ -43,7 +43,15 @@ class Transaction(TransactionBase):
     id: int
     payment_id: int
     timestamp: str
-    
+
+# class Receipt(BaseModel):
+#     payment_id: int
+#     amount: float
+#     sender: str
+#     receiver: str
+#     status: str
+#     timestamp: str
+
 # Example usage:
 # user_create = UserCreate(name="John Doe", email="johndoe@example.com", password="mysecretpassword")
 # print(user_create.password)  # Output: hashed password
